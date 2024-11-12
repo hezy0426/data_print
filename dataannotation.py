@@ -19,26 +19,30 @@ response = requests.get(url)
 if response.status_code != 200:
     raise Exception(f"Failed to load page with status code {response.status_code}")
 
-# Step 2: Parse the HTML
 soup = BeautifulSoup(response.text, 'html.parser')
 
-# Step 3: Locate the table and extract data
-# Assuming the table rows are identifiable in the HTML structure. Adjust tags based on actual structure.
 table_data = []
-rows = soup.find_all('tr')  # This might vary based on the table structure
+rows = soup.find_all('tr')[1:]  
+dic = {}
+maxX = 0
+maxY = 0
 
 for row in rows:
     cells = row.find_all('td')
-    if len(cells) == 3:  # Assuming 3 columns: x-coordinate, y-coordinate, character
-        x_coordinate = cells[0].text.strip()
-        y_coordinate = cells[1].text.strip()
-        character = cells[2].text.strip()
-        table_data.append({
-            "x-coordinate": x_coordinate,
-            "y-coordinate": y_coordinate,
-            "character": character
-        })
+    if len(cells) == 3:
+        
+        x = int(cells[0].text.strip())
+        character = cells[1].text.strip()
+        y = int(cells[2].text.strip())
 
-# Step 4: Display the extracted data
-for entry in table_data:
-    print(entry)
+        maxX = max(x,maxX)
+        maxY = max(y,maxY)
+        dic[(x,y)] = character
+
+while maxY >= 0:
+    tempStr = ""
+    for x_cord in range(maxX + 1):
+        tempStr += (dic.get((x_cord,maxY), ""))
+    print(tempStr)
+    maxY = maxY - 1
+
